@@ -1,4 +1,8 @@
 /config.php
+/vendor/
+/.php-cs-fixer.cache
+/.phpstan.cache/
+/.phpunit.cache/
 /storage/logs/*
 !/storage/logs/.gitkeep
 /storage/sessions/*
