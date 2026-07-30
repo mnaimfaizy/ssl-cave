@@ -63,7 +63,7 @@ function handle_home(): void
 
     $attention = array_values(array_filter(
         $domains,
-        static fn(array $d): bool => !in_array((string) $d['status'], ['ok'], true)
+        static fn (array $d): bool => !in_array((string) $d['status'], ['ok'], true)
     ));
 
     $lastJobs = [];

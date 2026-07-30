@@ -210,7 +210,7 @@ final class JobQueue
                     return;
                 }
                 $err = error_get_last();
-                $detail = is_array($err) ? (string) ($err['message'] ?? 'unknown error') : 'unknown error';
+                $detail = is_array($err) ? (string) $err['message'] : 'unknown error';
                 $this->markFailed(
                     $jobId,
                     $domain,

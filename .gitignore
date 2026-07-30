@@ -1,3 +1,8 @@
+/config.php
+/vendor/
+/.php-cs-fixer.cache
+/.phpstan.cache/
+/.phpunit.cache/
 # Real config variants — keep only the example tracked
 /config*.php
 !/config.php.example

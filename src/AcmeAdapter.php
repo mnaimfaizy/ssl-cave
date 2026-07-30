@@ -46,7 +46,7 @@ final class AcmeAdapter
                     continue;
                 }
                 $domain = $parts[0];
-                $sanRaw = $parts[2] ?? '';
+                $sanRaw = $parts[2];
             } else {
                 $domain = $parts[0];
                 $sanRaw = $parts[2];

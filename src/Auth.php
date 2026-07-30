@@ -102,7 +102,7 @@ final class Auth
                 'path' => $params['path'],
                 'secure' => $params['secure'],
                 'httponly' => $params['httponly'],
-                'samesite' => $params['samesite'] ?? 'Lax',
+                'samesite' => $params['samesite'],
             ]);
         }
         session_destroy();

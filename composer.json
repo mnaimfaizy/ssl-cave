@@ -1,0 +1,43 @@
+{
+    "name": "sslcave/ssl-cave",
+    "description": "Single-user PHP portal for SSL inventory and controlled acme.sh jobs on cPanel",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.75",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ],
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SslCave\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "8.3.99"
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "cs-check": "php-cs-fixer check --config=.php-cs-fixer.dist.php",
+        "cs-fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php",
+        "phpstan": "phpstan analyse --memory-limit=512M",
+        "test": "phpunit",
+        "quality": [
+            "@cs-check",
+            "@phpstan"
+        ]
+    }
+}

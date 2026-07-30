@@ -31,12 +31,17 @@ final class AlertService
             // Drift / one-sided inventory — stable ref so weekly date churn does not re-mail.
             if ($status === 'drift' || $status === 'acme-only' || $status === 'cpanel-only') {
                 $ref = $status . ':hook' . ((int) $domain['deploy_hook']);
-                $result = $this->sendOnce($name, 'drift', $ref, $email, $from,
+                $result = $this->sendOnce(
+                    $name,
+                    'drift',
+                    $ref,
+                    $email,
+                    $from,
                     "SSL Cave drift: {$name}",
                     "Domain {$name} shows status \"{$status}\".\n"
-                    . "cPanel expiry: " . ($domain['cpanel_expiry'] ?? 'n/a') . "\n"
-                    . "acme.sh expiry: " . ($domain['acme_expiry'] ?? 'n/a') . "\n"
-                    . "Deploy hook: " . ((int) $domain['deploy_hook'] === 1 ? 'yes' : 'no') . "\n"
+                    . 'cPanel expiry: ' . ($domain['cpanel_expiry'] ?? 'n/a') . "\n"
+                    . 'acme.sh expiry: ' . ($domain['acme_expiry'] ?? 'n/a') . "\n"
+                    . 'Deploy hook: ' . ((int) $domain['deploy_hook'] === 1 ? 'yes' : 'no') . "\n"
                 );
                 if ($result === 'sent') {
                     $sent++;
@@ -55,7 +60,12 @@ final class AlertService
                     $t = (int) $threshold;
                     if ($days <= $t) {
                         $ref = (string) $expiry . ':' . $t;
-                        $result = $this->sendOnce($name, 'expiry_' . $t, $ref, $email, $from,
+                        $result = $this->sendOnce(
+                            $name,
+                            'expiry_' . $t,
+                            $ref,
+                            $email,
+                            $from,
                             "SSL Cave expiry ({$t}d): {$name}",
                             "Certificate for {$name} expires in {$days} day(s) (on {$expiry}).\n"
                         );
@@ -78,10 +88,15 @@ final class AlertService
         foreach ($jobs as $job) {
             $name = (string) $job['domain'];
             $ref = 'job:' . $job['id'];
-            $result = $this->sendOnce($name, 'job_failure', $ref, $email, $from,
+            $result = $this->sendOnce(
+                $name,
+                'job_failure',
+                $ref,
+                $email,
+                $from,
                 "SSL Cave job failed: {$name}",
                 "Job #{$job['id']} ({$job['action']}) for {$name} failed.\n"
-                . "Exit code: " . ($job['exit_code'] ?? 'n/a') . "\n\n"
+                . 'Exit code: ' . ($job['exit_code'] ?? 'n/a') . "\n\n"
                 . "stderr:\n" . substr((string) ($job['stderr'] ?? ''), 0, 4000) . "\n"
             );
             if ($result === 'sent') {
