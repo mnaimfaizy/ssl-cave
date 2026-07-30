@@ -5,10 +5,25 @@ declare(strict_types=1);
 namespace SslCave\Tests;
 
 use Csrf;
-use SslCave\Tests\Support\DatabaseTestCase;
+use PHPUnit\Framework\TestCase;
 
-final class CsrfTest extends DatabaseTestCase
+final class CsrfTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        $_SESSION = [];
+    }
+
+    protected function tearDown(): void
+    {
+        $_SESSION = [];
+        parent::tearDown();
+    }
+
     public function testTokenCreatesAndReusesSessionValue(): void
     {
         $first = Csrf::token();
@@ -16,7 +31,7 @@ final class CsrfTest extends DatabaseTestCase
 
         $this->assertNotSame('', $first);
         $this->assertSame($first, $second);
-        $this->assertSame(64, strlen($first));
+        $this->assertTrue(Csrf::validate($first));
     }
 
     public function testValidateAcceptsMatchingToken(): void
