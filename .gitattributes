@@ -3,3 +3,11 @@
 *.bat text eol=crlf
 *.cmd text eol=crlf
 *.ps1 text eol=crlf
+
+# Release archives are an upload-ready cPanel tree (no Docker / CI / research)
+docker/ export-ignore
+Dockerfile export-ignore
+docker-compose.yml export-ignore
+.dockerignore export-ignore
+.github/ export-ignore
+docs/research/ export-ignore
