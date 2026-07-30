@@ -3,6 +3,11 @@
 /.php-cs-fixer.cache
 /.phpstan.cache/
 /.phpunit.cache/
+# Real config variants — keep only the example tracked
+/config*.php
+!/config.php.example
+
+# Runtime / local state
 /storage/logs/*
 !/storage/logs/.gitkeep
 /storage/sessions/*
@@ -12,3 +17,28 @@
 Thumbs.db
 .env
 .env.local
+
+# Certs, keys, and dumps (do not blanket-ignore *.sql — schema.sql / seed stay tracked)
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+*.csr
+fullchain*
+*.sql.gz
+*.sql.bak
+*.dump
+*.bak
+
+# ACME / AutoSSL challenge leftovers under the challenge tree
+.well-known/acme-challenge/*
+!.well-known/acme-challenge/.gitkeep
+.well-known/pki-validation/*
+!.well-known/pki-validation/.gitkeep
+
+# Host / local overrides and tooling
+docker-compose.override.yml
+.cursor/
+graphify-out/
