@@ -1,0 +1,10 @@
+.git
+.cursor
+storage/logs/*
+storage/sessions/*
+!storage/logs/.gitkeep
+!storage/sessions/.gitkeep
+config.php
+*.log
+README.md
+graphify-out

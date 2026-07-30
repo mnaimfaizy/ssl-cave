@@ -1,0 +1,4 @@
+Main_Domain|KeyLength|SAN|CA|Created|Renew
+fixture.example.com|ec-256|www.fixture.example.com|ZeroSSL|2026-01-01|2026-09-01
+example.com|ec-256|www.example.com|ZeroSSL|2026-01-01|2026-09-20
+typo.example.com|ec-256||ZeroSSL|2026-01-01|2026-09-01

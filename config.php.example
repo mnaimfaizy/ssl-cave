@@ -1,0 +1,51 @@
+<?php
+/**
+ * Copy to config.php and fill in real values.
+ * On cPanel the subdomain folder IS the docroot; .htaccess blocks web access to this file.
+ */
+return [
+    'app_name' => 'SSL Cave',
+    'base_url' => 'https://ssl-cave.example.com',
+    'timezone' => 'UTC',
+
+    // Single portal user (password_hash of your password)
+    'auth' => [
+        'username' => 'admin',
+        // Generate: php -r "echo password_hash('your-password', PASSWORD_DEFAULT), PHP_EOL;"
+        'password_hash' => '',
+        'session_name' => 'sslcave_sess',
+        'lockout_max_attempts' => 5,
+        'lockout_window_seconds' => 900,
+    ],
+
+    'db' => [
+        'dsn' => 'mysql:host=localhost;dbname=sslcave;charset=utf8mb4',
+        'user' => 'sslcave_user',
+        'pass' => 'CHANGE_ME',
+    ],
+
+    // Paths on the cPanel account (same Unix user as the portal)
+    'paths' => [
+        'cpanel_user' => 'YOUR_CPANEL_USER',
+        'home' => '/home/YOUR_CPANEL_USER',
+        'acme_home' => '/home/YOUR_CPANEL_USER/.acme.sh',
+        'acme_bin' => '/home/YOUR_CPANEL_USER/.acme.sh/acme.sh',
+        'uapi_bin' => 'uapi',
+        'storage' => __DIR__ . '/storage',
+    ],
+
+    // Alert recipient — treat as secret/config, not hardcode in commits
+    'alerts' => [
+        'email' => '',
+        // Mailbox on your cPanel account (not @localhost)
+        'from' => 'ssl-cave@example.com',
+        'expiry_days' => [30, 14, 7],
+    ],
+
+    // Worker safety
+    'jobs' => [
+        'allowed_actions' => ['issue', 'renew', 'deploy', 'remove'],
+        'max_runtime_seconds' => 600,
+        'log_dir' => __DIR__ . '/storage/logs',
+    ],
+];

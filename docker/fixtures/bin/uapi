@@ -1,0 +1,46 @@
+#!/bin/sh
+# Local/Docker stub for cPanel uapi SSL helpers.
+set -eu
+
+MODULE=""
+FUNC=""
+DOMAIN=""
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --output=json|--output) shift ;;
+    SSL) MODULE="SSL"; shift ;;
+    installed_hosts|delete_ssl)
+      FUNC="$1"
+      shift
+      ;;
+    domain=*)
+      DOMAIN="${1#domain=}"
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+if [ "$MODULE" = "SSL" ] && [ "$FUNC" = "delete_ssl" ]; then
+  if [ -z "$DOMAIN" ]; then
+    cat <<'EOF'
+{"result":{"status":0,"errors":["Missing domain"],"messages":null,"data":null}}
+EOF
+    exit 1
+  fi
+  cat <<EOF
+{"result":{"status":1,"errors":null,"messages":["The SSL host was successfully removed for ${DOMAIN}."],"data":null}}
+EOF
+  exit 0
+fi
+
+# Default: installed_hosts
+cat <<'EOF'
+{"result":{"data":[
+  {"servername":"fixture.example.com","certificate":{"not_after":"2026-09-01T00:00:00Z"}},
+  {"servername":"example.com","certificate":{"not_after":"2026-09-20T00:00:00Z"}}
+]}}
+EOF

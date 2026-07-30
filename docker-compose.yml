@@ -1,0 +1,66 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: sslcave
+      MYSQL_USER: sslcave
+      MYSQL_PASSWORD: sslcave
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - sslcave_db:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./docker/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    ports:
+      - "8088:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: sslcave
+      DB_USER: sslcave
+      DB_PASS: sslcave
+      SSLCAVE_USERNAME: admin
+      SSLCAVE_PASSWORD: sslcave
+      SSLCAVE_BASE_URL: http://localhost:8088
+      SSLCAVE_TIMEZONE: UTC
+      SSLCAVE_FORCE_CONFIG: "1"
+    volumes:
+      - .:/var/www/html
+      - sslcave_storage:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: ["php", "/var/www/html/bin/worker.php"]
+    environment:
+      DB_HOST: db
+      DB_NAME: sslcave
+      DB_USER: sslcave
+      DB_PASS: sslcave
+      SSLCAVE_USERNAME: admin
+      SSLCAVE_PASSWORD: sslcave
+      SSLCAVE_FORCE_CONFIG: "1"
+    volumes:
+      - .:/var/www/html
+      - sslcave_storage:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+    restart: "no"
+    profiles: ["worker"]
+
+volumes:
+  sslcave_db:
+  sslcave_storage:

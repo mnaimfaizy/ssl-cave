@@ -1,0 +1,35 @@
+# SSL Cave — subdomain document root MUST be this folder
+# (e.g. /home/<user>/ssl-cave.example.com/), not a nested public/.
+#
+# AutoSSL / acme.sh HTTP-01 writes to /.well-known/acme-challenge/ here.
+# Do not rewrite or block that path.
+
+DirectoryIndex index.php index.html
+
+<IfModule mod_headers.c>
+    Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
+
+# Deny direct download of secrets / project files in the web root
+<IfModule mod_authz_core.c>
+    <FilesMatch "^(config\.php|config\.php\.example|schema\.sql|composer\.(json|lock)|Dockerfile|docker-compose\.yml|\.env.*|README\.md)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^(config\.php|config\.php\.example|schema\.sql|composer\.(json|lock)|Dockerfile|docker-compose\.yml|\.env.*|README\.md)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # ACME / AutoSSL challenges — never rewrite or forbid
+    RewriteRule ^\.well-known/ - [L]
+
+    # Block app internals (sibling dirs inside the web root)
+    RewriteRule ^(src|templates|bin|storage|docker)(/|$) - [F,L]
+    RewriteRule ^(config\.php|schema\.sql)$ - [F,L]
+</IfModule>
