@@ -79,6 +79,15 @@ final class CpanelAdapter
 
         $raw = $this->runUapi('SSL delete_ssl domain=' . $domain);
 
+        return $this->interpretDeleteSsl($domain, $raw);
+    }
+
+    /**
+     * Map raw uapi SSL delete_ssl output to a cleanup message.
+     * Soft-succeeds when the domain already has no installed SSL.
+     */
+    private function interpretDeleteSsl(string $domain, string $raw): string
+    {
         if ($this->isDeleteSslAlreadyGone($raw)) {
             return 'No SSL host installed for ' . $domain . ' (already clean).';
         }
@@ -137,23 +146,54 @@ final class CpanelAdapter
             throw new RuntimeException('Empty output from uapi ' . $context . '.');
         }
 
-        $json = json_decode($raw, true);
-        if (is_array($json)) {
+        $json = $this->decodeUapiPayload($raw);
+        if ($json !== null) {
             return $json;
-        }
-
-        // uapi often prints notices on stderr; with 2>&1 that contaminates pure JSON.
-        $extracted = $this->extractJsonObject($raw);
-        if ($extracted !== null) {
-            $json = json_decode($extracted, true);
-            if (is_array($json)) {
-                return $json;
-            }
         }
 
         throw new RuntimeException(
             'Invalid JSON from uapi ' . $context . ': ' . $this->snippet($raw)
         );
+    }
+
+    /**
+     * Decode a uapi JSON document, including when warn lines precede it.
+     * Warn lines can embed their own `{...}` (cpwrapd raw_response), so the
+     * first brace in the buffer is not the API result. Prefer a whole-buffer
+     * decode, then the last line that is itself a JSON object.
+     *
+     * @return array<string,mixed>|null
+     */
+    private function decodeUapiPayload(string $raw): ?array
+    {
+        $whole = json_decode($raw, true);
+        if (is_array($whole)) {
+            return $whole;
+        }
+
+        $last = null;
+        foreach (preg_split('/\R/', $raw) ?: [] as $line) {
+            $line = trim($line);
+            if ($line === '' || !str_starts_with($line, '{')) {
+                continue;
+            }
+            $decoded = json_decode($line, true);
+            if (is_array($decoded)) {
+                $last = $decoded;
+            }
+        }
+        if ($last !== null) {
+            return $last;
+        }
+
+        // uapi often prints notices on stderr; with 2>&1 that contaminates pure JSON.
+        $extracted = $this->extractJsonObject($raw);
+        if ($extracted === null) {
+            return null;
+        }
+        $json = json_decode($extracted, true);
+
+        return is_array($json) ? $json : null;
     }
 
     private function extractJsonObject(string $raw): ?string
@@ -177,6 +217,7 @@ final class CpanelAdapter
         return str_contains($lower, 'does not have an ssl')
             || str_contains($lower, 'does not have ssl')
             || str_contains($lower, 'no ssl host')
+            || str_contains($lower, 'no ssl certificate secures')
             || str_contains($lower, 'ssl is not installed')
             || str_contains($lower, 'not currently installed')
             || str_contains($lower, 'could not find')
